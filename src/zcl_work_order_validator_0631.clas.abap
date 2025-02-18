@@ -11,19 +11,24 @@ CLASS zcl_work_order_validator_0631 DEFINITION
                                       iv_priority      TYPE zde_priority_0631
                             RETURNING VALUE(rv_valid)  TYPE abap_bool,
 
-      validate_update_order IMPORTING iv_status        TYPE zde_status_0631
-                                      iv_priority      TYPE zde_priority_0631
-                                      iv_status_original type zde_status_0631
-                            RETURNING VALUE(rv_valid)  TYPE abap_bool,
+      validate_update_order IMPORTING iv_status          TYPE zde_status_0631
+                                      iv_priority        TYPE zde_priority_0631
+                                      iv_status_original TYPE zde_status_0631
+                            RETURNING VALUE(rv_valid)    TYPE abap_bool,
+
+      validate_status_and_priority IMPORTING iv_status       TYPE zde_status_0631
+                                             iv_priority     TYPE zde_priority_0631
+                                   RETURNING VALUE(rv_valid) TYPE abap_bool,
 
       validate_delete_order IMPORTING iv_work_order_id TYPE zde_work_order_id_0631
                                       iv_status        TYPE zde_status_0631
                             RETURNING VALUE(rv_valid)  TYPE abap_bool,
 
-      validate_status_and_priority IMPORTING iv_status       TYPE zde_status_0631
-                                             iv_priority     TYPE zde_priority_0631
-                                   RETURNING VALUE(rv_valid) TYPE abap_bool.
-  PROTECTED SECTION.
+      validate_authority    IMPORTING iv_work_order_id TYPE zde_work_order_id_0631
+                                      iv_actvt         TYPE c
+                            RETURNING VALUE(rv_valid) TYPE abap_bool.
+
+PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -64,13 +69,6 @@ CLASS ZCL_WORK_ORDER_VALIDATOR_0631 IMPLEMENTATION.
 
   ENDMETHOD.
 
-
-  METHOD validate_delete_order.
-
-
-  ENDMETHOD.
-
-
   METHOD validate_status_and_priority.
 
     rv_valid = abap_true.
@@ -103,7 +101,6 @@ CLASS ZCL_WORK_ORDER_VALIDATOR_0631 IMPLEMENTATION.
 
   ENDMETHOD.
 
-
   METHOD validate_update_order.
 
     rv_valid = abap_true.
@@ -119,4 +116,39 @@ CLASS ZCL_WORK_ORDER_VALIDATOR_0631 IMPLEMENTATION.
       EXIT.
     ENDIF.
   ENDMETHOD.
+
+    METHOD validate_delete_order.
+      rv_valid = abap_true.
+
+      SELECT SINGLE FROM ztwork_or_hist31
+             FIELDS @abap_true
+             WHERE work_order_id = @iv_work_order_id AND
+                   change_description NE 'ACTUALIZADO'
+            INTO @DATA(lv_work_order_valid).
+
+
+      IF iv_status <> 'PE' AND lv_work_order_valid <> abap_true.
+        rv_valid = abap_false.
+        EXIT.
+      ENDIF.
+
+    ENDMETHOD.
+
+  METHOD validate_authority.
+
+    AUTHORITY-CHECK OBJECT 'ZAO_WORKOR'
+     ID 'ZAF_WORKOR' FIELD iv_work_order_id
+     ID 'ACTVT' FIELD iv_actvt  .
+
+    IF sy-subrc EQ 0.
+      rv_valid = abap_true.
+      exit.
+    ELSE.
+      rv_valid = abap_false.
+      EXIT.
+    ENDIF.
+
+
+  ENDMETHOD.
+
 ENDCLASS.

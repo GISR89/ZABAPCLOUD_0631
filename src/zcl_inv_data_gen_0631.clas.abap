@@ -73,26 +73,6 @@ CLASS ZCL_INV_DATA_GEN_0631 IMPLEMENTATION.
     INSERT zttechnician_631 FROM TABLE @lt_zttechnician_631.
 
 
-    "for ztwork_or_hist31
-*    MODIFY ztwork_or_hist31 FROM TABLE @( VALUE #( ( history_id         = '000100'
-*                                                     work_order_id      = '0001'
-*                                                     modification_date  = '20250130'
-*                                                     change_description = 'Crear tabla' )
-*
-*                                                   ( history_id         = '000200'
-*                                                     work_order_id      = '0002'
-*                                                     modification_date  = '20250131'
-*                                                     change_description = 'Actualizar regristro'  )
-*
-*                                                   ( history_id         = '000300'
-*                                                     work_order_id      = '0003'
-*                                                     modification_date  = '20250120'
-*                                                     change_description = 'Crear tabla'  )
-*
-*                                                   ( history_id         = '000400'
-*                                                     work_order_id      = '0004'
-*                                                     modification_date  = '20250202'
-*                                                     change_description = 'Eliminar regristro' ) ) ).
 
   ENDMETHOD.
 ENDCLASS.
